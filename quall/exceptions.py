@@ -1,0 +1,3 @@
+
+class QuallException(Exception):
+  pass

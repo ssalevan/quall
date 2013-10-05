@@ -1,0 +1,8 @@
+---
+ssh:
+  use_ssh_agent: true
+  key_type: rsa
+  key_path: ~/.ssh/id_rsa
+
+selenium:
+  driver: WebDriver
