@@ -1,5 +1,11 @@
-#!/usr/bin/python
-# Contains base
+# -*- coding: utf-8 -*-
+"""
+    quall.base
+    ~~~~~~~~~~
+
+    Contains the base class for all derived test frameworks.
+"""
+
 
 import os
 import socket
@@ -12,10 +18,8 @@ try:
 except ImportError:
     from yaml import Loader
 
-import quall.mixins.ssh
 
-
-class QuallBase(quall.mixins.ssh.SSHMixin):
+class QuallBase(object):
 
   CONFIG_FILE = "%s/config/base_config.yml" % os.getcwd()
 
@@ -42,3 +46,5 @@ class QuallBase(quall.mixins.ssh.SSHMixin):
       sys.stderr.write("%s\n" % traceback.format_exc())
       sys.stderr.flush()
       sys.exit(-1)
+
+  def run_command(self, )

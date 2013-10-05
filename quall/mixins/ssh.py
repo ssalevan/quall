@@ -6,10 +6,9 @@
     Provides SSH client functionality.
 
     Example::
-      self.run_command("some.domain.tld", "ls -lah")
+      self.ssh_command("some.domain.tld", "ls -lah")
       self.forward_port_to_local("some.domain.tld", 80)
       self.send_local_file("some.domain.tld", "./hosts", "/etc/hosts")
-
 """
 
 
@@ -25,33 +24,58 @@ import quall.exceptions
 
 
 class SSHException(quall.exceptions.QuallException):
+  """
+  Base class for all Quall-based SSH exceptions.
+  """
   pass
 
 
 class SFTPException(SSHException):
+  """
+  Base class for all Quall-based SFTP exceptions.
+  """
   pass
 
+
 class SSHAuthenticationException(SSHException):
+  """
+  Signifies that an error has occurred during SSH authentication.
+  """
   pass
 
 
 class SSHTimeoutException(SSHException):
+  """
+  Signifies that a timeout has occurred while executing a remote command.
+  """
   pass
 
 
 class SSHHostKeyException(SSHException):
+  """
+  Base class for all SSH host key-based exceptions.
+  """
   pass
 
 
 class SSHHostKeyChangedException(SSHHostKeyException):
+  """
+  Signifies that the host key of a remote host has changed.
+  """
   pass
 
 
 class SSHHostKeyUnknownException(SSHHostKeyException):
+  """
+  Signifies that the host key of a remote host is unknown.
+  """
   pass
 
 
 class SSHClientMixin(object):
+  """This mixin provides Paramiko-based SSH client functionality to any
+  derivative of quall.QuallBase.
+  """
 
   DEFAULT_KNOWN_HOSTS_PATH = os.path.join(
       os.environ["HOME"], ".ssh", "known_hosts")
@@ -158,30 +182,104 @@ class SSHClientMixin(object):
 
   def get_sftp_client(self, hostname, username = "root", password = None,
       ssh_port = 22):
+    """
+    Obtains a C{paramiko.SFTPClient} for the requested host using the
+    connection options defined in the Quall configuration.
+
+    @param hostname: the hostname of the remote host
+    @type hostname: str
+    @param username: the username to connect to the remote host as
+    @type username: str
+    @param password: the password to use for authentication (optional)
+    @type password: str
+    @param ssh_port: the SSH port of the remote host, if not 22
+    @type ssh_port: int
+
+    @return: a C{paramiko.SFTPClient} corresponding to supplied options
+    @rtype: paramiko.SFTPClient
+
+    @raise SSHException: if an error occurs during client initialization
+    """
+
     return paramiko.SFTPClient.from_transport(
         get_ssh_transport(hostname, username, password, port))
 
   def get_ssh_transport(self, hostname, username = "root", password = None,
       ssh_port = 22):
-    self.log.debug("Opening SSH connection to %s@%s" % (username, hostname))
-    # Opens a socket to the remote host's SSH port.
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.connect((hostname, ssh_port))
-    # Opens an SSH session against the SSH socket.
-    transport = paramiko.Transport(sock)
-    transport.start_client()
-    # Checks known hosts if requested to do so.
-    if (self.config["ssh"].get("check_host_keys", False)):
-      self._check_host_keys(transport, hostname)
-    # Authenticates SSH connection.
-    self._authenticate_ssh_transport(transport, username, password)
-    self.log.debug(
-        "Successfully authenticated to %s@%s" % (username, hostname))
-    return transport
+    """
+    Obtains a C{paramiko.Transport} for the requested host using the connection
+    options defined in the Quall configuration.
 
-  def run_command(self, hostname, command, username = "root", password = None,
+    @param hostname: the hostname of the remote host
+    @type hostname: str
+    @param username: the username to connect to the remote host as
+    @type username: str
+    @param password: the password to use for authentication (optional)
+    @type password: str
+    @param ssh_port: the SSH port of the remote host, if not 22
+    @type ssh_port: int
+
+    @return: a C{paramiko.Transport} corresponding to supplied options
+    @rtype: paramiko.SFTPClient
+
+    @raise SSHException: if an error occurs during client initialization
+    """
+
+    try:
+      self.log.debug("Opening SSH connection to %s@%s" % (username, hostname))
+      # Opens a socket to the remote host's SSH port.
+      sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+      sock.connect((hostname, ssh_port))
+      # Opens an SSH session against the SSH socket.
+      transport = paramiko.Transport(sock)
+      transport.start_client()
+      # Checks known hosts if requested to do so.
+      if (self.config["ssh"].get("check_host_keys", False)):
+        self._check_host_keys(transport, hostname)
+      # Authenticates SSH connection.
+      self._authenticate_ssh_transport(transport, username, password)
+      self.log.debug(
+          "Successfully authenticated to %s@%s" % (username, hostname))
+      return transport
+    except socket.error:
+      raise SSHException("Unable to open a connection to %s:%s" % (hostname,
+          ssh_port))
+    except paramiko.SSHException:
+      raise SSHException(
+          "Error while opening SSH connection:\n%s" % traceback.format_exc())
+
+  def ssh_command(self, hostname, command, username = "root", password = None,
       ssh_port = 22, shell = False, get_pty = False, combine_stderr = False,
       timeout = None):
+    """
+    Executes a remote command via SSH for the requested host using the
+    connection options defined in the Quall configuration.
+
+    @param hostname: the hostname of the remote host
+    @type hostname: str
+    @param command: the SSH command to execute
+    @type command: str
+    @param username: the username to connect to the remote host as
+    @type username: str
+    @param password: the password to use for authentication (optional)
+    @type password: str
+    @param ssh_port: the SSH port of the remote host, if not 22
+    @type ssh_port: int
+    @param shell: whether to invoke a remote shell before command execution
+    @type ssh_port: boolean
+    @param get_pty: whether to spawn a pseudo-TTY before command execution
+    @type get_pty: boolean
+    @param combine_stderr: whether to combine stderr into stdout stream
+    @type combine_stderr: boolean
+    @param timeout: timeout for command execution (optional)
+    @type timeout: float
+
+    @return: (exit_code, stdout, stderr) resulting from command execution
+    @rtype: tuple
+
+    @raise SSHException: if an error occurs during SSH transaction
+    """
+
     channel = None
     transport = None
     try:
