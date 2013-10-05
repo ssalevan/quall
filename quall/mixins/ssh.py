@@ -187,30 +187,6 @@ class SSHClientMixin(object):
           "Failed to authenticate with password:\n%s" % traceback.format_exc())
     return False
 
-  def get_sftp_client(self, hostname, username = "root", password = None,
-      ssh_port = 22):
-    """
-    Obtains a C{paramiko.SFTPClient} for the requested host using the
-    connection options defined in the Quall configuration.
-
-    @param hostname: the hostname of the remote host
-    @type hostname: str
-    @param username: the username to connect to the remote host as
-    @type username: str
-    @param password: the password to use for authentication (optional)
-    @type password: str
-    @param ssh_port: the SSH port of the remote host, if not 22
-    @type ssh_port: int
-
-    @return: a C{paramiko.SFTPClient} corresponding to supplied options
-    @rtype: paramiko.SFTPClient
-
-    @raise SSHException: if an error occurs during client initialization
-    """
-
-    return paramiko.SFTPClient.from_transport(
-        get_ssh_transport(hostname, username, password, port))
-
   def get_ssh_transport(self, hostname, username = "root", password = None,
       ssh_port = 22):
     """
@@ -340,30 +316,54 @@ class SSHClientMixin(object):
 
   def send_local_file(self, hostname, local_path, remote_path,
       username = "root", password = None, ssh_port = 22):
+    transport = None
+    sftp = None
     try:
-      sftp = get_sftp_client(hostname, username, password, port)
+      transport = get_ssh_transport(hostname, username, password, port)
+      sftp = paramiko.SFTPClient.from_transport(transport)
       sftp.put(local_path, remote_path)
     except paramiko.SFTPError:
       raise SFTPException(
           "Failed to send %s to %s@%s:%s\n%s" % (local_path,
               username, hostname, remote_path, traceback.format_exc()))
+    finally:
+      if sftp is not None:
+        sftp.close()
+      if transport is not None:
+        transport.close()
 
   def get_remote_file(self, hostname, remote_path, local_path,
       username = "root", password = None, ssh_port = 22):
+    transport = None
+    sftp = None
     try:
-      sftp = get_sftp_client(hostname, username, password, port)
+      transport = get_ssh_transport(hostname, username, password, port)
+      sftp = paramiko.SFTPClient.from_transport(transport)
       sftp.get(remote_path, local_path)
     except paramiko.SFTPError:
       raise SFTPException(
           "Failed to get %s from %s@%s:%s\n%s" % (local_path,
               username, hostname, remote_path, traceback.format_exc()))
+    finally:
+      if sftp is not None:
+        sftp.close()
+      if transport is not None:
+        transport.close()
 
   def get_remote_file_contents(self, hostname, remote_path,
       username = "root", password = None, ssh_port = 22):
+    transport = None
+    sftp = None
     try:
-      sftp = get_sftp_client(hostname, username, password, port)
+      transport = get_ssh_transport(hostname, username, password, port)
+      sftp = paramiko.SFTPClient.from_transport(transport)
       return sftp.open(remote_path).read()
     except paramiko.SFTPError:
       raise SFTPException(
           "Failed to get %s from %s@%s:%s\n%s" % (local_path,
               username, hostname, remote_path, traceback.format_exc()))
+    finally:
+      if sftp is not None:
+        sftp.close()
+      if transport is not None:
+        transport.close()
