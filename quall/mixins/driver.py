@@ -13,6 +13,8 @@
 import selenium
 import selenium.webdriver
 
+from selenium.webdriver import DesiredCapabilties
+
 
 class SeleniumMixin(object):
 
@@ -20,14 +22,23 @@ class SeleniumMixin(object):
   DEFAULT_DESIRED_CAPABILITIES = "CHROME"
   DEFAULT_COMMAND_EXECUTOR = "http://localhost"
 
+  config = {'selenium':{}}
+
+  def with_driver(fn):
+    def new_fn():
+      if self.driver == None:
+        self.start_driver()
+      fn()
+    return new_fn
+
   def start_driver(self):
     driver_class = getattr(selenium.webdriver,
-        self.config["selenium"].get("driver", DEFAULT_DRIVER))
-    desired_capabilities = getattr(selenium.webdriver.DesiredCapabilties,
+        self.config["selenium"].get("driver", self.DEFAULT_DRIVER))
+    desired_capabilities = getattr(DesiredCapabilties,
         self.config["selenium"].get("desired_capabilities_base",
-            DEFAULT_DESIRED_CAPABILITIES))
+            self.DEFAULT_DESIRED_CAPABILITIES))
     command_executor = self.config["selenium"].get("command_executor",
-        DEFAULT_COMMAND_EXECUTOR)
+        self.DEFAULT_COMMAND_EXECUTOR)
     self.log.info(
         "Starting WebDriver with capabilities: %s" % desired_capabilities_base)
     if self.config["selenium"].has_key("desired_capabilities"):
@@ -39,3 +50,8 @@ class SeleniumMixin(object):
         command_executor = command_executor)
     self.driver.implicitly_wait(30)
     self.log.info("WebDriver successfully started.")
+
+  @with_driver
+  def go(self, url):
+    self.log.info("Opening URL: %s" % url)
+    self.driver.get(url)
