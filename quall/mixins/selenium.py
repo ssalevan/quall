@@ -6,7 +6,36 @@
     Provides Selenium client functionality.
 
     Example::
-      self.ssh_command("some.domain.tld", "ls -lah")
-      self.forward_port_to_local("some.domain.tld", 80)
-      self.send_local_file("some.domain.tld", "./hosts", "/etc/hosts")
+      
 """
+
+
+import selenium
+import selenium.webdriver
+
+
+class SeleniumMixin(object):
+
+  DEFAULT_DRIVER = "Chrome"
+  DEFAULT_DESIRED_CAPABILITIES = "CHROME"
+  DEFAULT_COMMAND_EXECUTOR = "http://localhost"
+
+  def start_driver(self):
+    driver_class = getattr(selenium.webdriver,
+        self.config["selenium"].get("driver", DEFAULT_DRIVER))
+    desired_capabilities = getattr(selenium.webdriver.DesiredCapabilties,
+        self.config["selenium"].get("desired_capabilities_base",
+            DEFAULT_DESIRED_CAPABILITIES))
+    command_executor = self.config["selenium"].get("command_executor",
+        DEFAULT_COMMAND_EXECUTOR)
+    self.log.info(
+        "Starting WebDriver with capabilities: %s" % desired_capabilities_base)
+    if self.config["selenium"].has_key("desired_capabilities"):
+      for key in self.config["selenium"]["desired_capabilities"].keys():
+        capability = self.config["selenium"]["desired_capabilities"][key]
+        desired_capabilities[key] = capability
+    self.driver = driver_class(
+        desired_capabilities = desired_capabilities,
+        command_executor = command_executor)
+    self.driver.implicitly_wait(30)
+    self.log.info("WebDriver successfully started.")
