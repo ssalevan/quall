@@ -25,6 +25,7 @@ class QuallBase(object):
 
   def __init__(self):
     self.load_config()
+    super()
 
   def get_free_port(self):
     sock = None
@@ -47,4 +48,14 @@ class QuallBase(object):
       sys.stderr.flush()
       sys.exit(-1)
 
-  def run_command(self, )
+  def run_command(self, command, background = False, shell = True):
+    self.log.info("Running local command: %s..." % command)
+    process = subprocess.Popen(command, stdin=subprocess.PIPE,
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell = shell)
+    if background:
+      return process
+    (stdout, stderr) = process.communicate()
+    log.info("Return code: %s" % process.returncode)
+    log.info("Stdout: %s" % stdout)
+    log.info("Stderr: %s" % stderr)
+    return (p.returncode, stdout, stderr)

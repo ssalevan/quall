@@ -27,6 +27,7 @@ class SSHException(quall.exceptions.QuallException):
   """
   Base class for all Quall-based SSH exceptions.
   """
+
   pass
 
 
@@ -34,6 +35,7 @@ class SFTPException(SSHException):
   """
   Base class for all Quall-based SFTP exceptions.
   """
+
   pass
 
 
@@ -41,6 +43,7 @@ class SSHAuthenticationException(SSHException):
   """
   Signifies that an error has occurred during SSH authentication.
   """
+
   pass
 
 
@@ -48,6 +51,7 @@ class SSHTimeoutException(SSHException):
   """
   Signifies that a timeout has occurred while executing a remote command.
   """
+
   pass
 
 
@@ -55,6 +59,7 @@ class SSHHostKeyException(SSHException):
   """
   Base class for all SSH host key-based exceptions.
   """
+
   pass
 
 
@@ -62,6 +67,7 @@ class SSHHostKeyChangedException(SSHHostKeyException):
   """
   Signifies that the host key of a remote host has changed.
   """
+
   pass
 
 
@@ -69,6 +75,7 @@ class SSHHostKeyUnknownException(SSHHostKeyException):
   """
   Signifies that the host key of a remote host is unknown.
   """
+
   pass
 
 
