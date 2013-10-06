@@ -11,9 +11,8 @@
 
 
 import selenium
-import selenium.webdriver
 
-from selenium.webdriver import DesiredCapabilties
+from selenium import webdriver
 
 
 class SeleniumMixin(object):
@@ -34,7 +33,8 @@ class SeleniumMixin(object):
   def start_driver(self):
     driver_class = getattr(selenium.webdriver,
         self.config["selenium"].get("driver", self.DEFAULT_DRIVER))
-    desired_capabilities = getattr(DesiredCapabilties,
+    desired_capabilities = getattr(
+        selenium.webdriver.common.desired_capabilities.DesiredCapabilities,
         self.config["selenium"].get("desired_capabilities_base",
             self.DEFAULT_DESIRED_CAPABILITIES))
     command_executor = self.config["selenium"].get("command_executor",
