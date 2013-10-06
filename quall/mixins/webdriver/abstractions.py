@@ -11,7 +11,7 @@
 
 class WebDriverAbstractions(object):
 
-  class WDElement(object):
+  class Element(object):
     locator = None
     humanReadable = None
     strategy = None

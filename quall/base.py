@@ -7,6 +7,7 @@
 """
 
 
+import optparse
 import os
 import socket
 import subprocess
@@ -14,6 +15,8 @@ import sys
 import time
 import traceback
 import yaml
+
+import proboscis
 
 try:
     from yaml import CLoader as Loader
@@ -27,7 +30,6 @@ class QuallBase(object):
 
   def __init__(self):
     self.load_config()
-    #super()
 
   def get_free_port(self):
     sock = None
@@ -41,11 +43,12 @@ class QuallBase(object):
 
   def load_config(self):
     try:
-      cfg_file = open(self.CONFIG_FILE, 'r')
-      self.config = yaml.load(cfg_file, Loader=Loader)["default"]
+      cfg_file = open(self.options.get(self.options.config_file, 'r'))
+      self.config = yaml.load(cfg_file,
+          loader = Loader)[self.options.environment]
     except Exception:
       sys.stderr.write(
-          "FATAL: Unable to read config file: %s\n" % self.CONFIG_FILE)
+          "FATAL: Unable to read config file: %s\n" % self.options.config_file)
       sys.stderr.write("%s\n" % traceback.format_exc())
       sys.stderr.flush()
       sys.exit(-1)
@@ -65,3 +68,18 @@ class QuallBase(object):
   def sleep(self, seconds):
     self.log.info("Sleeping for %s seconds..." % seconds)
     time.sleep(seconds)
+
+  def launch(self):
+    # Parses command-line options.
+    parser = OptionParser()
+    parser.add_option("-e", "--env", dest = "environment",
+        help = "harness config environment to test with", metavar = "ENV",
+        default = "default")
+    parser.add_option("-c", "--config", dest = "config_file",
+        help = "path to a configuration YAML file", metavar = "CFG_FILE",
+        default = self.CONFIG_FILE)
+    (self.options, args) = parser.parse_args()
+    # Loads environment-wise harness configuration from configuration file.
+    self.load_config()
+    # Runs all configured tests.
+    proboscis.TestProgram().run_and_exit()
