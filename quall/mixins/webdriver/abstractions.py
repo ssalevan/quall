@@ -102,11 +102,11 @@ class WebDriverAbstractions(object):
         "//*[(self::td or contains(@class,'dr-table-cell')) and "
         "normalize-space(.)='%(0)s']/..//*[@type='checkbox']")
         
-class BasicElements(object):
-  bookmarked_element = Element("quallBookmark", strategy = BasicStrategies.id)
+  class BasicElements(object):
+    bookmarked_element = Element("quallBookmark", strategy = BasicStrategies.id)
 
-  # Some garden-variety button types:
-  ok_button = Element("OK", strategy = BasicStrategies.button)
-  clear_button = Element("Clear", strategy = BasicStrategies.button)
-  cancel_button = Element("Cancel", strategy = BasicStrategies.button)
-  submit_button = Element("Submit", strategy = BasicStrategies.button)
+    # Some garden-variety button types:
+    ok_button = Element("OK", strategy = BasicStrategies.button)
+    clear_button = Element("Clear", strategy = BasicStrategies.button)
+    cancel_button = Element("Cancel", strategy = BasicStrategies.button)
+    submit_button = Element("Submit", strategy = BasicStrategies.button)
