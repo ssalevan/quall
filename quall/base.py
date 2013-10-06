@@ -63,7 +63,7 @@ class QuallBase(object):
     self.log.info("Return code: %s" % process.returncode)
     self.log.info("Stdout: %s" % stdout)
     self.log.info("Stderr: %s" % stderr)
-    return (p.returncode, stdout, stderr)
+    return (process.returncode, stdout, stderr)
 
   def sleep(self, seconds):
     self.log.info("Sleeping for %s seconds..." % seconds)
