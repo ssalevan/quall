@@ -41,7 +41,7 @@ class QuallBase(object):
   def load_config(self):
     try:
       cfg_file = open(self.CONFIG_FILE, 'r')
-      self.config = yaml.load(cfg_file, Loader=Loader)
+      self.config = yaml.load(cfg_file, Loader=Loader)["default"]
     except Exception:
       sys.stderr.write(
           "FATAL: Unable to read config file: %s\n" % self.CONFIG_FILE)

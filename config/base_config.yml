@@ -1,18 +1,29 @@
 ---
-ssh:
-  use_ssh_agent: true
-  key_type: rsa
-  key_path: ~/.ssh/id_rsa
+default: &defaults
+  ssh:
+    use_ssh_agent: true
+    key_type: rsa
+    key_path: ~/.ssh/id_rsa
 
-selenium:
-  driver: Remote
-  start_selenium: false
-  download_selenium_jar: false
-  selenium_jar_url: http://selenium.googlecode.com/files/selenium-server-standalone-2.28.0.jar
-  selenium_args: -trustAllSSLCertificates -timeout 120 -firefoxProfileTemplate ./firefox-profile
-  command_executor: http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub
-  desired_capabilities_base: IPHONE
-  desired_capabilities:
-    version: 5.0
-    platform: MAC
-    name: Hi I'm James Quall spaghetti and meatballs
+  selenium:
+    driver: Remote
+    start_selenium: false
+    download_selenium_jar: false
+    selenium_jar_url: http://selenium.googlecode.com/files/selenium-server-standalone-2.28.0.jar
+    selenium_args: -trustAllSSLCertificates -timeout 120 -firefoxProfileTemplate ./firefox-profile
+    command_executor: http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub
+    desired_capabilities_base: IPHONE
+    desired_capabilities:
+      version: 5.0
+      platform: MAC
+      name: Hi I'm James Quall spaghetti and meatballs
+
+local:
+  <<: *defaults
+  ssh:
+    key_path: ~/.ssh/id_rsa
+
+jenkins:
+  <<: *defaults
+  ssh:
+    key_path: /home/jenkins/.ssh/id_rsa
