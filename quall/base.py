@@ -11,6 +11,7 @@ import os
 import socket
 import subprocess
 import sys
+import time
 import traceback
 import yaml
 
@@ -50,13 +51,17 @@ class QuallBase(object):
       sys.exit(-1)
 
   def run_command(self, command, background = False, shell = True):
-    self.log.info("Running local command: %s..." % command)
+    self.log.info("Running local command: %s" % command)
     process = subprocess.Popen(command, stdin=subprocess.PIPE,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE, shell = shell)
     if background:
       return process
     (stdout, stderr) = process.communicate()
-    log.info("Return code: %s" % process.returncode)
-    log.info("Stdout: %s" % stdout)
-    log.info("Stderr: %s" % stderr)
+    self.log.info("Return code: %s" % process.returncode)
+    self.log.info("Stdout: %s" % stdout)
+    self.log.info("Stderr: %s" % stderr)
     return (p.returncode, stdout, stderr)
+
+  def sleep(self, seconds):
+    self.log.info("Sleeping for %s seconds..." % seconds)
+    time.sleep(seconds)

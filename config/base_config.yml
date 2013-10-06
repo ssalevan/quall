@@ -1,29 +1,38 @@
----
 default: &defaults
-  ssh:
-    use_ssh_agent: true
+  ssh: &ssh_defaults
+    check_host_keys: false
+    use_ssh_agent: false
     key_type: rsa
     key_path: ~/.ssh/id_rsa
+    known_hosts_path: ~/.ssh/known_hosts
 
-  selenium:
+  webdriver: &webdriver_defaults
     driver: Remote
-    start_selenium: false
-    download_selenium_jar: false
+    start_selenium: true
+    download_selenium_jar: true
     selenium_jar_url: http://selenium.googlecode.com/files/selenium-server-standalone-2.28.0.jar
-    selenium_args: -trustAllSSLCertificates -timeout 120 -firefoxProfileTemplate ./firefox-profile
-    command_executor: http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub
-    desired_capabilities_base: IPHONE
+    selenium_args: -trustAllSSLCertificates -timeout 120
+    command_executor: 
+    desired_capabilities_base: CHROME
     desired_capabilities:
       version: 5.0
-      platform: MAC
+      platform: LINUX
       name: Hi I'm James Quall spaghetti and meatballs
 
 local:
   <<: *defaults
   ssh:
+    <<: *ssh_defaults
     key_path: ~/.ssh/id_rsa
+
+sauce:
+  <<: *defaults
+  webdriver:
+    <<: *webdriver_defaults
+    command_executor: http://username-string:access-key-string@ondemand.saucelabs.com:80/wd/hub
 
 jenkins:
   <<: *defaults
   ssh:
+    <<: *ssh_defaults
     key_path: /home/jenkins/.ssh/id_rsa
