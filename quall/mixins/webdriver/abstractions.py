@@ -33,7 +33,7 @@ class WebDriverAbstractions(object):
     def get_locator(self):
       if self.strategy is not None:
         return self.strategy.get_locator(self.args)
-        return self.locator
+      return self.locator
         
     def get_human_readable(self):
       if self.strategy is not None:
