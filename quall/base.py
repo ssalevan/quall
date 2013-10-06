@@ -26,7 +26,7 @@ class QuallBase(object):
 
   def __init__(self):
     self.load_config()
-    super()
+    #super()
 
   def get_free_port(self):
     sock = None
