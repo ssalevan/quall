@@ -11,7 +11,7 @@
 
 class WebDriverAbstractions(object):
 
-  class WDElement(object):
+  class Element(object):
     locator = None
     humanReadable = None
     strategy = None
@@ -33,7 +33,7 @@ class WebDriverAbstractions(object):
     def get_locator(self):
       if self.strategy is not None:
         return self.strategy.get_locator(self.args)
-        return self.locator
+      return self.locator
         
     def get_human_readable(self):
       if self.strategy is not None:
@@ -102,11 +102,11 @@ class WebDriverAbstractions(object):
         "//*[(self::td or contains(@class,'dr-table-cell')) and "
         "normalize-space(.)='%(0)s']/..//*[@type='checkbox']")
         
-class BasicElements(object):
-  bookmarked_element = Element("quallBookmark", strategy = BasicStrategies.id)
+  class BasicElements(object):
+    bookmarked_element = Element("quallBookmark", strategy = BasicStrategies.id)
 
-  # Some garden-variety button types:
-  ok_button = Element("OK", strategy = BasicStrategies.button)
-  clear_button = Element("Clear", strategy = BasicStrategies.button)
-  cancel_button = Element("Cancel", strategy = BasicStrategies.button)
-  submit_button = Element("Submit", strategy = BasicStrategies.button)
+    # Some garden-variety button types:
+    ok_button = Element("OK", strategy = BasicStrategies.button)
+    clear_button = Element("Clear", strategy = BasicStrategies.button)
+    cancel_button = Element("Cancel", strategy = BasicStrategies.button)
+    submit_button = Element("Submit", strategy = BasicStrategies.button)
