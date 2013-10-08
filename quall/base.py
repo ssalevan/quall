@@ -86,7 +86,6 @@ class QuallBase(object):
     (self.options, args) = parser.parse_args()
     # Loads environment-wise harness configuration from configuration file.
     self.load_config()
-    print sys.argv
     # Runs all configured tests.
     proboscis.TestProgram(
       argv = sys.argv
