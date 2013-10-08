@@ -14,13 +14,12 @@
 
 import base64
 import binascii
+import logging
 import os
+import paramiko
+import quall.exceptions
 import socket
 import traceback
-
-import paramiko
-
-import quall.exceptions
 
 
 class SSHException(quall.exceptions.QuallException):
@@ -90,6 +89,8 @@ class SSHClientMixin(object):
   DEFAULT_RSA_KEY_PATH = os.path.join(os.environ['HOME'], ".ssh", "id_rsa")
   DEFAULT_DSA_KEY_PATH = os.path.join(os.environ['HOME'], ".ssh", "id_dsa")
 
+  log = logging.getLogger('quall.ssh')
+
   def _authenticate_ssh_transport(self, transport, username, password):
     # If configured to use the SSH agent, tries agent keys.
     if self._try_agent_authentication(transport, username):
@@ -105,7 +106,7 @@ class SSHClientMixin(object):
 
   def _check_host_keys(self, transport, hostname):
     known_hosts_path = self.config["ssh"].get(
-        "known_hosts_path", DEFAULT_KNOWN_HOSTS_PATH)
+        "known_hosts_path", self.DEFAULT_KNOWN_HOSTS_PATH)
     known_hosts_keys = paramiko.util.load_host_keys(
         os.path.expanduser(known_hosts_path))
     remote_key = transport.get_remote_server_key()
@@ -141,12 +142,12 @@ class SSHClientMixin(object):
 
   def _try_key_authentication(self, transport, username, password):
     private_key_type = self.config["ssh"].get("key_type",
-        DEFAULT_PRIVATE_KEY_TYPE).lower()
+        self.DEFAULT_PRIVATE_KEY_TYPE).lower()
     private_key_password = self.config["ssh"].get("key_password",
         password)
     key = None
     if "rsa" in private_key_type:
-      rsa_key_path = self.config["ssh"].get("key_path", DEFAULT_RSA_KEY_PATH)
+      rsa_key_path = self.config["ssh"].get("key_path", self.DEFAULT_RSA_KEY_PATH)
       rsa_key_path = os.path.expanduser(rsa_key_path)
       self.log.debug("Trying RSA key authentication from: %s" % rsa_key_path)
       try:
@@ -158,7 +159,7 @@ class SSHClientMixin(object):
         except paramiko.SSHException:
           self.log.debug("Unable to decrypt RSA key: %s" % rsa_key_path)
     elif "dsa" in private_key_type:
-      dsa_key_path = self.config["ssh"].get("key_path", DEFAULT_DSA_KEY_PATH)
+      dsa_key_path = self.config["ssh"].get("key_path", self.DEFAULT_DSA_KEY_PATH)
       dsa_key_path = os.path.expanduser(dsa_key_path)
       self.log.debug("Trying DSA key authentication from %s" % dsa_key_path)
       try:
@@ -269,7 +270,7 @@ class SSHClientMixin(object):
       self.log.info(
           "Executing SSH command against %s@%s: %s" % (username, hostname,
               command))
-      transport = get_ssh_transport(hostname, username, password)
+      transport = self.get_ssh_transport(hostname, username, password)
       channel = transport.open_session()
       # Starts a pseudo-terminal on the remote host if desired.
       if get_pty:
@@ -299,7 +300,7 @@ class SSHClientMixin(object):
       self.log.info("Exit code: %s" % exit_code)
       self.log.info("Stdout:\n%s" % stdout_text)
       self.log.info("Stderr:\n%s" % stderr_text)
-      return (exit code, stdout_text, stderr_text)
+      return (exit_code, stdout_text, stderr_text)
     except socket.timeout:
       raise SSHTimeoutException(
           "Reached timeout of %s seconds while executing SSH command against "
@@ -319,7 +320,7 @@ class SSHClientMixin(object):
     transport = None
     sftp = None
     try:
-      transport = get_ssh_transport(hostname, username, password, port)
+      transport = self.get_ssh_transport(hostname, username, password, ssh_port)
       sftp = paramiko.SFTPClient.from_transport(transport)
       sftp.put(local_path, remote_path)
     except paramiko.SFTPError:
@@ -332,12 +333,12 @@ class SSHClientMixin(object):
       if transport is not None:
         transport.close()
 
-  def get_remote_file(self, hostname, remote_path, local_path,
+  def get_remote_file(self, hostname, local_path, remote_path,
       username = "root", password = None, ssh_port = 22):
     transport = None
     sftp = None
     try:
-      transport = get_ssh_transport(hostname, username, password, port)
+      transport = self.get_ssh_transport(hostname, username, password, ssh_port)
       sftp = paramiko.SFTPClient.from_transport(transport)
       sftp.get(remote_path, local_path)
     except paramiko.SFTPError:
@@ -350,12 +351,12 @@ class SSHClientMixin(object):
       if transport is not None:
         transport.close()
 
-  def get_remote_file_contents(self, hostname, remote_path,
+  def get_remote_file_contents(self, hostname, local_path, remote_path,
       username = "root", password = None, ssh_port = 22):
     transport = None
     sftp = None
     try:
-      transport = get_ssh_transport(hostname, username, password, port)
+      transport = self.get_ssh_transport(hostname, username, password, ssh_port)
       sftp = paramiko.SFTPClient.from_transport(transport)
       return sftp.open(remote_path).read()
     except paramiko.SFTPError:
