@@ -11,4 +11,4 @@ class MainClass(QuallBase):
 if __name__ == '__main__':
   m = MainClass()
   m.launch()
-  m.run_tests()
+  #m.run_tests()

@@ -351,7 +351,7 @@ class SSHClientMixin(object):
       if transport is not None:
         transport.close()
 
-  def get_remote_file_contents(self, hostname, local_path, remote_path,
+  def get_remote_file_contents(self, hostname, remote_path,
       username = "root", password = None, ssh_port = 22):
     transport = None
     sftp = None
