@@ -7,8 +7,10 @@
 """
 
 
+import logging
 import optparse
 import os
+import proboscis
 import socket
 import subprocess
 import sys
@@ -16,20 +18,23 @@ import time
 import traceback
 import yaml
 
-import proboscis
-
 try:
     from yaml import CLoader as Loader
 except ImportError:
     from yaml import Loader
 
 
+LOG_FORMAT = "%(asctime)s|%(name)s|%(levelname)s: %(message)s"
+logging.basicConfig(level=logging.DEBUG, format=LOG_FORMAT)
+
 class QuallBase(object):
 
   CONFIG_FILE = "%s/config/base_config.yml" % os.getcwd()
 
   def __init__(self):
-    self.load_config()
+    #self.load_config()
+    self.log = logging.getLogger("quall.base")
+    pass
 
   def get_free_port(self):
     sock = None
@@ -43,9 +48,9 @@ class QuallBase(object):
 
   def load_config(self):
     try:
-      cfg_file = open(self.options.get(self.options.config_file, 'r'))
+      cfg_file = open(self.options.config_file, 'r')
       self.config = yaml.load(cfg_file,
-          loader = Loader)[self.options.environment]
+                    Loader = Loader)[self.options.environment]
     except Exception:
       sys.stderr.write(
           "FATAL: Unable to read config file: %s\n" % self.options.config_file)
@@ -71,7 +76,7 @@ class QuallBase(object):
 
   def launch(self):
     # Parses command-line options.
-    parser = OptionParser()
+    parser = optparse.OptionParser()
     parser.add_option("-e", "--env", dest = "environment",
         help = "harness config environment to test with", metavar = "ENV",
         default = "default")
@@ -82,4 +87,4 @@ class QuallBase(object):
     # Loads environment-wise harness configuration from configuration file.
     self.load_config()
     # Runs all configured tests.
-    proboscis.TestProgram().run_and_exit()
+    # proboscis.TestProgram().run_and_exit()
