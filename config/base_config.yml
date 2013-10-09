@@ -3,6 +3,7 @@ default: &defaults
     check_host_keys: false
     use_ssh_agent: false
     key_type: rsa
+    key_password:
     key_path: ~/.ssh/id_rsa
     known_hosts_path: ~/.ssh/known_hosts
 

@@ -5,7 +5,7 @@ from tests import *
 from proboscis import SkipTest
 from proboscis import test
 
-class MainClass(QuallBase, SSHClientMixin):
+class MainClass(QuallBase, SSHClientMixin, WebDriverMixin):
   
   def __init__(self): 
     super(MainClass, self).__init__()
