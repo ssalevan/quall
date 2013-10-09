@@ -19,11 +19,11 @@ default: &defaults
       platform: LINUX
       name: Hi I'm James Quall spaghetti and meatballs
 
-local:
+ec2:
   <<: *defaults
   ssh:
     <<: *ssh_defaults
-    key_path: ~/.ssh/id_rsa
+    key_path: ~/Downloads/ssalevan-squonk.pem
 
 sauce:
   <<: *defaults

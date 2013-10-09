@@ -19,9 +19,9 @@ import traceback
 import yaml
 
 try:
-    from yaml import CLoader as Loader
+  from yaml import CLoader as Loader
 except ImportError:
-    from yaml import Loader
+  from yaml import Loader
 
 
 LOG_FORMAT = "%(asctime)s|%(name)s|%(levelname)s: %(message)s"
@@ -32,9 +32,13 @@ class QuallBase(object):
   CONFIG_FILE = "%s/config/base_config.yml" % os.getcwd()
 
   def __init__(self):
-    #self.load_config()
+
+    #super(QuallBase, self).__init__()
     self.log = logging.getLogger("quall.base")
     pass
+
+  def cfg(self, section, var):
+    return self.config[section][var]
 
   def get_free_port(self):
     sock = None
@@ -48,6 +52,7 @@ class QuallBase(object):
 
   def load_config(self):
     try:
+      print "Loading harness config at %s" % self.options.config_file
       cfg_file = open(self.options.config_file, 'r')
       self.config = yaml.load(cfg_file,
                     Loader = Loader)[self.options.environment]
@@ -83,10 +88,15 @@ class QuallBase(object):
     parser.add_option("-c", "--config", dest = "config_file",
         help = "path to a configuration YAML file", metavar = "CFG_FILE",
         default = self.CONFIG_FILE)
+    parser.add_option("-g", "--group", dest = "groups",
+        help = "a comma-separated list of Proboscis test groups to run",
+        metavar = "PROBOSCIS_GROUPS", default = "all")
     (self.options, args) = parser.parse_args()
+    print self.options
     # Loads environment-wise harness configuration from configuration file.
     self.load_config()
     # Runs all configured tests.
-    proboscis.TestProgram(
-      argv = sys.argv
-    ).run_and_exit()
+    #proboscis.TestProgram(
+    #  groups = self.options.groups.strip().split(","),
+    #  argv = []
+    #).run_and_exit()

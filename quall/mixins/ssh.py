@@ -17,9 +17,10 @@ import binascii
 import logging
 import os
 import paramiko
-import quall.exceptions
 import socket
 import traceback
+
+import quall.exceptions
 
 
 class SSHException(quall.exceptions.QuallException):
@@ -82,6 +83,10 @@ class SSHClientMixin(object):
   """This mixin provides Paramiko-based SSH client functionality to any
   derivative of quall.QuallBase.
   """
+
+  #def __init__(self, *args, **kwargs):
+  #  super(SSHClientMixin, self).__init__(*args, **kwargs)
+  #  self.launch()
 
   DEFAULT_KNOWN_HOSTS_PATH = os.path.join(
       os.environ["HOME"], ".ssh", "known_hosts")
@@ -214,11 +219,13 @@ class SSHClientMixin(object):
       # Opens a socket to the remote host's SSH port.
       sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
       sock.connect((hostname, ssh_port))
+
+      print dir(self)
       # Opens an SSH session against the SSH socket.
       transport = paramiko.Transport(sock)
       transport.start_client()
       # Checks known hosts if requested to do so.
-      if (self.config["ssh"].get("check_host_keys", False)):
+      if (self.cfg("ssh", "check_host_keys")):
         self._check_host_keys(transport, hostname)
       # Authenticates SSH connection.
       self._authenticate_ssh_transport(transport, username, password)
@@ -361,8 +368,8 @@ class SSHClientMixin(object):
       return sftp.open(remote_path).read()
     except paramiko.SFTPError:
       raise SFTPException(
-          "Failed to get %s from %s@%s:%s\n%s" % (local_path,
-              username, hostname, remote_path, traceback.format_exc()))
+          "Failed to get %s@%s:%s\n%s" % (username, hostname, remote_path,
+              traceback.format_exc()))
     finally:
       if sftp is not None:
         sftp.close()
