@@ -10,13 +10,15 @@
 import logging
 import optparse
 import os
-import proboscis
 import socket
 import subprocess
 import sys
+import tempfile
 import time
 import traceback
 import yaml
+
+import proboscis
 
 try:
   from yaml import CLoader as Loader
@@ -49,6 +51,9 @@ class QuallBase(object):
     finally:
       if sock is not None:
         sock.close()
+
+  def get_temp_file(self):
+    pass
 
   def load_config(self):
     try:

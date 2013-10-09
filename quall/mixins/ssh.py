@@ -193,7 +193,7 @@ class SSHClientMixin(object):
           "Failed to authenticate with password:\n%s" % traceback.format_exc())
     return False
 
-  def get_ssh_transport(self, hostname, username = "root", password = None,
+  def get_ssh_transport(self, hostname, username = "root", password = "",
       ssh_port = 22):
     """
     Obtains a C{paramiko.Transport} for the requested host using the connection
@@ -239,7 +239,7 @@ class SSHClientMixin(object):
       raise SSHException(
           "Error while opening SSH connection:\n%s" % traceback.format_exc())
 
-  def ssh_command(self, hostname, command, username = "root", password = None,
+  def ssh_command(self, hostname, command, username = "root", password = "",
       ssh_port = 22, shell = False, get_pty = False, combine_stderr = False,
       timeout = None):
     """
@@ -340,8 +340,8 @@ class SSHClientMixin(object):
       if transport is not None:
         transport.close()
 
-  def get_remote_file(self, hostname, local_path, remote_path,
-      username = "root", password = None, ssh_port = 22):
+  def get_remote_file(self, hostname, remote_path, local_path,
+      username = "root", password = "", ssh_port = 22):
     transport = None
     sftp = None
     try:
@@ -359,7 +359,7 @@ class SSHClientMixin(object):
         transport.close()
 
   def get_remote_file_contents(self, hostname, remote_path,
-      username = "root", password = None, ssh_port = 22):
+      username = "root", password = "", ssh_port = 22):
     transport = None
     sftp = None
     try:

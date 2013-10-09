@@ -12,8 +12,11 @@ class MainClass(QuallBase, SSHClientMixin):
 
   #@test(groups=['ssh'])
   def testssh(self):
-    self.ssh_command("ec2-54-224-175-121.compute-1.amazonaws.com", "ls /etc", username="ec2-user")
-    print self.get_remote_file_contents("ec2-54-224-175-121.compute-1.amazonaws.com", "/etc/hosts")
+    host = "ec2-54-224-175-121.compute-1.amazonaws.com"
+    self.ssh_command(host, "cat /etc/anus", username="ec2-user")
+    self.ssh_command(host, "wall 'i farted'", username="ec2-user")
+    self.get_remote_file(host, "/etc/hosts", "/tmp/fuck", username = "ec2-user")
+    print self.get_remote_file_contents("ec2-54-224-175-121.compute-1.amazonaws.com", "/etc/hosts", username="ec2-user")
 
   def butt(self):
     pass
