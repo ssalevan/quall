@@ -322,24 +322,6 @@ class SSHClientMixin(object):
       if transport is not None:
         transport.close()
 
-  def send_local_file(self, hostname, local_path, remote_path,
-      username = "root", password = None, ssh_port = 22):
-    transport = None
-    sftp = None
-    try:
-      transport = self.get_ssh_transport(hostname, username, password, ssh_port)
-      sftp = paramiko.SFTPClient.from_transport(transport)
-      sftp.put(local_path, remote_path)
-    except paramiko.SFTPError:
-      raise SFTPException(
-          "Failed to send %s to %s@%s:%s\n%s" % (local_path,
-              username, hostname, remote_path, traceback.format_exc()))
-    finally:
-      if sftp is not None:
-        sftp.close()
-      if transport is not None:
-        transport.close()
-
   def get_remote_file(self, hostname, remote_path, local_path,
       username = "root", password = "", ssh_port = 22):
     transport = None
@@ -375,3 +357,22 @@ class SSHClientMixin(object):
         sftp.close()
       if transport is not None:
         transport.close()
+
+  def put_remote_file(self, hostname, local_path, remote_path,
+      username = "root", password = None, ssh_port = 22):
+    transport = None
+    sftp = None
+    try:
+      transport = self.get_ssh_transport(hostname, username, password, ssh_port)
+      sftp = paramiko.SFTPClient.from_transport(transport)
+      sftp.put(local_path, remote_path)
+    except paramiko.SFTPError:
+      raise SFTPException(
+          "Failed to send %s to %s@%s:%s\n%s" % (local_path,
+              username, hostname, remote_path, traceback.format_exc()))
+    finally:
+      if sftp is not None:
+        sftp.close()
+      if transport is not None:
+        transport.close()
+

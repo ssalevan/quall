@@ -16,6 +16,7 @@ class MainClass(QuallBase, SSHClientMixin):
     self.ssh_command(host, "cat /etc/anus", username="ec2-user")
     self.ssh_command(host, "wall 'i farted'", username="ec2-user")
     self.get_remote_file(host, "/etc/hosts", "/tmp/fuck", username = "ec2-user")
+    self.put_remote_file(host, "/tmp/fuck", "/home/ec2-user/fuck", username = "ec2-user")
     print self.get_remote_file_contents("ec2-54-224-175-121.compute-1.amazonaws.com", "/etc/hosts", username="ec2-user")
 
   def butt(self):
